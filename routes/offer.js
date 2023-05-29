@@ -51,3 +51,76 @@ router.post(
   }
 );
 module.exports = router;
+
+/*=====================================OFFER=======================================*/
+
+router.get("/offers", async (req, res) => {
+  try {
+    const { title, priceMin, priceMax, sort, page } = req.query;
+    // filter
+    const filter = {};
+    if (title) {
+      filter.product_name = new RegExp(title, "i");
+    }
+    if (priceMin && priceMax) {
+      filter.product_price = { $gte: priceMin, $lte: priceMax };
+    } else if (priceMin) {
+      filter.product_price = { $gte: priceMin };
+    } else if (priceMax) {
+      filter.product_price = { $lte: priceMax };
+    }
+    // console.log(filter);
+
+    // Sort
+    const sortFilter = {};
+
+    if (sort === "price-asc") {
+      sortFilter.product_price = 1;
+    }
+    if (sort === "price-desc") {
+      sortFilter.product_price = -1;
+    }
+    // console.log(sortFilter);
+
+    // skip
+    const limit = 5;
+
+    let pageFilter = 1;
+
+    if (page) {
+      pageFilter = page;
+    }
+    const skip = (pageFilter - 1) * limit;
+    // console.log(pageFilter);
+
+    const filterOffer = await Offer.find(filter)
+      .sort(sortFilter)
+      .skip(skip)
+      .limit(limit)
+      .populate("owner", "account");
+
+    const count = await Offer.countDocuments(filter);
+
+    res.status(200).json({ count: count, offer: filterOffer });
+  } catch (error) {
+    res.status(500).json({ message: error });
+  }
+});
+
+/*=====================================OFFER_ID=======================================*/
+
+router.get("/offer/:id", async (req, res) => {
+  try {
+    const findOfferById = await Offer.findById(req.params.id).populate(
+      "owner",
+      "account"
+    );
+    res.status(200).json(findOfferById);
+  } catch (error) {
+    res.status(500).json({ message: error });
+  }
+});
+
+/*=====================================EXPORT=======================================*/
+
+module.exports = router;
