@@ -14,7 +14,6 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
   try {
     // console.log(req.body);
     const { username, email, password, newsletter } = req.body;
-    const uploadAvatar = req.files.picture;
 
     if (!username || !password || !email) {
       return res.status(409).json({ message: "Please complete all input" });
@@ -26,13 +25,6 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
       return res.status(409).json({ message: "This User as already exist !" });
     }
 
-    // if (uploadAvatar) {
-    const responseCloudinary = await cloudinary.uploader.upload(
-      convertToBase64(uploadAvatar),
-      { folder: "Vinted_V2/users" }
-    );
-    // }
-
     //   console.log(username, email, password, newsletter);
     const salt = uid2(16);
     const hash = SHA256(salt + password).toString(encBase64);
@@ -42,14 +34,22 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
       email,
       account: {
         username,
-        avatar: responseCloudinary,
       },
       newsletter,
       salt,
       hash,
       token,
     });
-    // console.log(newUser);
+
+    if (req.files) {
+      const uploadAvatar = req.files.picture;
+      const responseCloudinary = await cloudinary.uploader.upload(
+        convertToBase64(uploadAvatar),
+        { folder: "Vinted_V2/users" }
+      );
+      newUser.account.avatar = responseCloudinary;
+    }
+
     const returnUser = {
       _id: newUser.email,
       token: newUser.token,
@@ -57,15 +57,12 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
         username: newUser.account.username,
       },
     };
-
     await newUser.save();
     res.status(201).json(returnUser);
   } catch (error) {
     res.status(500).json(error.message);
   }
 });
-
-module.exports = router;
 
 /*=====================================LOGIN=======================================*/
 
@@ -98,3 +95,5 @@ router.post("/user/login", async (req, res) => {
     res.status(500).json(error.message);
   }
 });
+
+module.exports = router;
