@@ -26,10 +26,13 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
       return res.status(409).json({ message: "This User as already exist !" });
     }
 
+    // if (uploadAvatar) {
     const responseCloudinary = await cloudinary.uploader.upload(
       convertToBase64(uploadAvatar),
       { folder: "Vinted_V2/users" }
     );
+    // }
+
     //   console.log(username, email, password, newsletter);
     const salt = uid2(16);
     const hash = SHA256(salt + password).toString(encBase64);
