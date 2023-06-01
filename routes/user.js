@@ -51,7 +51,7 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
     }
 
     const returnUser = {
-      _id: newUser.email,
+      _id: newUser._id,
       token: newUser.token,
       account: {
         username: newUser.account.username,
