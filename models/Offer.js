@@ -10,6 +10,7 @@ const Offer = mongoose.model("Offer", {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+  product_available: Boolean,
 });
 
 module.exports = Offer;
