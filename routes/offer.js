@@ -41,6 +41,7 @@ router.post(
         ],
         product_image: responseCloudinary,
         owner: req.user,
+        product_available: true,
       });
 
       await newOffer.save();
