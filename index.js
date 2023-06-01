@@ -30,9 +30,11 @@ cloudinary.config({
 
 const userRoute = require("./routes/user");
 const offerRoute = require("./routes/offer");
+const paymentsRoute = require("./routes/payments");
 
 app.use(userRoute);
 app.use(offerRoute);
+app.use(paymentsRoute);
 
 /*==============DEFAULT_ROUTE================*/
 
